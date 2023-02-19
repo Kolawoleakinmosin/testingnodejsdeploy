@@ -42,14 +42,20 @@ jobs:
           ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
+    - name: Login to GHCR
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.CR_PAT }}
+
     - name: Deploy to Kubernetes
-      uses: docker://ghcr.io/k8s-at-home/kubernetes-cli:v1.22.0
+      uses: docker://docker.io/k8sathome/kubernetes-cli:v1.22.0
       with:
         args: |
           apply -f k8s/deployment.yaml
           set image deployment/your-deployment-name your-container-name=${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           rollout status deployment/your-deployment-name
       env:
-        CR_PAT: ${{ secrets.CR_PAT }}
-
+        KUBECONFIG: ${{ env.KUBECONFIG }}
 
