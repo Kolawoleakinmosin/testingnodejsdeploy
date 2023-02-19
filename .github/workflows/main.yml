@@ -10,7 +10,11 @@ env:
   ECR_REGISTRY: 383265273024.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_NAME: your-image-name
   KUBECONFIG: ${{ secrets.KUBECONFIG }}
-  CR_PAT: ${{ secrets.CR_PAT }}
+  GHCR_REGISTRY: ghcr.io
+  GHCR_USERNAME: ${{ github.actor }}
+  GHCR_REPOSITORY: ${{ github.repository }}
+  GHCR_IMAGE_NAME: k8s-at-home/kubernetes-cli
+  GHCR_IMAGE_TAG: v1.22.0
 
 jobs:
   build-and-deploy:
@@ -45,16 +49,17 @@ jobs:
     - name: Login to GHCR
       uses: docker/login-action@v1
       with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.CR_PAT }}
+        registry: ${{ env.GHCR_REGISTRY }}
+        username: ${{ env.GHCR_USERNAME }}
+        password: ${{ secrets.GHCR_PAT }}
+
+    - name: Pull image from GHCR
+      run: docker pull ${{ env.GHCR_REGISTRY }}/${{ env.GHCR_IMAGE_NAME }}:${{ env.GHCR_IMAGE_TAG }}
 
     - name: Deploy to Kubernetes
       uses: docker://ghcr.io/k8s-at-home/kubernetes-cli:v1.22.0
       with:
         args: |
           apply -f k8s/deployment.yaml
-          set image deployment/your-deployment-name your-container-name=${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          rollout status deployment/your-deployment-name
-      env:
-        KUBECONFIG: ${{ env.KUBECONFIG }}
+          set image deployment/your-deployment-name
+
