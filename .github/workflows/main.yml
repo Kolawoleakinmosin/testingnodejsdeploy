@@ -50,7 +50,7 @@ jobs:
         password: ${{ secrets.CR_PAT }}
 
     - name: Deploy to Kubernetes
-      uses: docker://docker.io/k8sathome/kubernetes-cli:v1.22.0
+      uses: docker://ghcr.io/k8s-at-home/kubernetes-cli:v1.22.0
       with:
         args: |
           apply -f k8s/deployment.yaml
@@ -58,4 +58,3 @@ jobs:
           rollout status deployment/your-deployment-name
       env:
         KUBECONFIG: ${{ env.KUBECONFIG }}
-
