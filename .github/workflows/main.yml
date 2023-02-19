@@ -10,6 +10,7 @@ env:
   ECR_REGISTRY: 383265273024.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_NAME: your-image-name
   KUBECONFIG: ${{ secrets.KUBECONFIG }}
+  CR_PAT: ${{ secrets.CR_PAT }}
 
 jobs:
   build-and-deploy:
@@ -42,10 +43,13 @@ jobs:
           ${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
     - name: Deploy to Kubernetes
-      uses: docker://ghcr.io/k8s-at-home/kubernetes-cli:latest
+      uses: docker://ghcr.io/k8s-at-home/kubernetes-cli:v1.22.0
       with:
         args: |
           apply -f k8s/deployment.yaml
           set image deployment/your-deployment-name your-container-name=${{ env.ECR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           rollout status deployment/your-deployment-name
+      env:
+        CR_PAT: ${{ secrets.CR_PAT }}
+
 
