@@ -23,7 +23,7 @@ jobs:
         push: true
         tags: 383265273024.dkr.ecr.us-east-1.amazonaws.com:latest
     - name: Deploy to Kubernetes
-      uses: kubernetes/kubectl@v1.22.0
+      uses: docker://ghcr.io/k8s-at-home/kubernetes-cli:latest
       with:
         args: apply -f deployment.yaml
       env:
