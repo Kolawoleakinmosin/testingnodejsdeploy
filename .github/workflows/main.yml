@@ -33,6 +33,17 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
+       
+    - name: build and push image to ECR
+      uses: vitr/actions-build-and-upload-to-ecs@master
+      with:
+          access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          account_id: ${{ secrets.AWS_ACCOUNT_ID }}
+          repo: mydockerrepo
+          region: us-east-1
+          tags: latest,${{ github.sha }}
+          create_repo: true
 
     - name: Build and push Docker image
       id: build-image
